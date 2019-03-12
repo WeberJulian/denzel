@@ -42,6 +42,28 @@ app.get("/movies",  async (req, res) => {
   res.send(movie[0]);
 });
 
+app.get("/movies/search",  async (req, res) => {
+  var err, db = await mongodb.MongoClient.connect(uri);
+  if(err) throw err;
+  var url_parts = url.parse(req.url, true);
+  var metascore = url_parts.query.metascore
+  var limit = url_parts.query.limit
+  console.log(limit)
+  if (metascore === undefined){
+    var movies = await db.collection("movies").find({}).toArray()
+  }
+  else{
+    var movies = await db.collection("movies").find({metascore: {$gte: parseInt(metascore)}}).toArray()
+  }
+  if(limit === undefined){
+    res.send(movies)
+  }
+  else{
+    res.send(movies.slice(0, parseInt(limit)))
+  }  
+});
+
+
 app.get("/movies/:id",  async (req, res) => {
   var err, db = await mongodb.MongoClient.connect(uri);
   if(err) throw err;
