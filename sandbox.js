@@ -48,7 +48,6 @@ app.get("/movies/search",  async (req, res) => {
   var url_parts = url.parse(req.url, true);
   var metascore = url_parts.query.metascore
   var limit = url_parts.query.limit
-  console.log(limit)
   if (metascore === undefined){
     var movies = await db.collection("movies").find({}).toArray()
   }
@@ -63,6 +62,19 @@ app.get("/movies/search",  async (req, res) => {
   }  
 });
 
+app.post("/movies/:id", async (req, res) => {
+  var err, db = await mongodb.MongoClient.connect(uri);
+  if(err) throw err;
+  var id = req.params.id
+  var movie = await db.collection("movies").findOne({id: req.params.id})
+  if(movie === null){
+    res.send("no films with this id");
+  }
+  else{
+    await db.collection("movies").update({id: req.params.id}, {$set: {review: req.body}})
+    res.send("ok")
+  }
+})
 
 app.get("/movies/:id",  async (req, res) => {
   var err, db = await mongodb.MongoClient.connect(uri);
