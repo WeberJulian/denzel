@@ -1,18 +1,43 @@
 /* eslint-disable no-console, no-process-exit */
 require('dotenv').config()
 const imdb = require('./src/imdb');
+const functions = require("./graphQLFunctions");
 var express = require('express');
 var mongodb = require('mongodb');
 var bodyParser = require("body-parser");
+var express_graphql = require('express-graphql');
+var { buildSchema } = require('graphql');
 var url = require('url');
 var app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+var schema = buildSchema(`
+    type Query {
+      movie: Movie
+    }
+    type Movie {
+      link: String
+      metascore: Int
+      synopsis: String
+      title: String
+      year: Int
+    }
+`);
+var root = {
+    movie: functions.movie
+};
+
+app.use('/graphql', express_graphql({
+    schema: schema,
+    rootValue: root,
+    graphiql: true
+}));
 const DENZEL_IMDB_ID = 'nm0000243';
 
 const uri = 'mongodb://'+process.env.USER+':'+process.env.PASS+'@'+process.env.HOST+':'+process.env.PORT+'/'+process.env.DB;
+
 
 app.get("/movies/populate",  async (req, res) => {
   console.log("Fetching films...")
