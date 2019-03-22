@@ -15,7 +15,10 @@ app.use(bodyParser.json());
 
 var schema = buildSchema(`
     type Query {
-      movie: Movie
+      movie(id: String): Movie
+      movies(metascore: Int, limit: Int): [Movie]
+      populate: Int
+      review(id: String!, date: String!, review: String!): String
     }
     type Movie {
       link: String
@@ -23,10 +26,19 @@ var schema = buildSchema(`
       synopsis: String
       title: String
       year: Int
+      id: String
+      review: Review
+    }
+    type Review {
+      date: String
+      review: String
     }
 `);
 var root = {
-    movie: functions.movie
+    movie: functions.movie,
+    movies: functions.movies,
+    populate: functions.populate,
+    review: functions.review
 };
 
 app.use('/graphql', express_graphql({
@@ -34,6 +46,7 @@ app.use('/graphql', express_graphql({
     rootValue: root,
     graphiql: true
 }));
+
 const DENZEL_IMDB_ID = 'nm0000243';
 
 const uri = 'mongodb://'+process.env.USER+':'+process.env.PASS+'@'+process.env.HOST+':'+process.env.PORT+'/'+process.env.DB;
@@ -110,6 +123,10 @@ app.get("/movies/:id",  async (req, res) => {
   }
   res.send(movie);
 });
+
+app.get("/", async(req, res) => {
+  res.redirect('/graphql');
+})
 
 
 var listener = app.listen("9292", function () {
