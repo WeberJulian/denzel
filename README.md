@@ -17,35 +17,35 @@ same requests that are in the readme
 
 Here is some exemple request
 
-###populate
+### populate
 ```sh
 query{
   populate
 }
 ```
 
-###random movie
+### random movie
 ```sh
 query{
   movie {id title year metascore}
 }
 ```
 
-###movies search
+### movies search
 ```sh
 query{
   movies(limit: 3, metascore: 70) {link metascore synopsis title year id}
 }
 ```
 
-###set review
+### set review
 ```sh
 query{
   review(id: "tt0368008", date: "2019-03-04", review: "😍 🔥")
 }
 ```
 
-###movie by id
+### movie by id
 ```sh
 query{
   movie(id: "tt0368008") {link metascore synopsis title year review{date review}}
